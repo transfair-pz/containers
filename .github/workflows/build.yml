@@ -10,19 +10,21 @@ permissions:
   packages: write
 
 jobs:
-  php:
+  server:
+    if: "!contains(github.event.commits[0].message, 'skip:server')"
+    timeout-minutes: 30
     runs-on: ubuntu-latest
-    name: build base image for php
+    name: build server image
     steps:
-    - uses: actions/checkout@v3
-    - uses: docker/login-action@v2
+    - uses: actions/checkout@v4
+    - uses: docker/login-action@v3
       name: login to ghcr.io
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - uses: docker/build-push-action@v3
+    - uses: docker/build-push-action@v5
       with:
-        context: ./php
+        context: ./server
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/php,ghcr.io/${{ github.repository_owner }}/php:8.1,ghcr.io/${{ github.repository_owner }}/php:8.1.10
+        tags: ghcr.io/${{ github.repository_owner }}/app:server
